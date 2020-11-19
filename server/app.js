@@ -6,8 +6,9 @@ import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
 
-import postsRoutes from "./routes/api/post";
-
+import postRoutes from "./routes/api/post";
+import userRoutes from "./routes/api/user";
+import authRoutes from "./routes/api/auth";
 const app = express();
 
 const { MONGO_URI } = config;
@@ -22,7 +23,9 @@ app.use(morgan("dev")); //log 기록 보기
 app.use(express.json());
 
 app.get("/");
-app.use("/api/post", postsRoutes);
+app.use("/api/post", postRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/auth", authRoutes);
 
 mongoose
   .connect(MONGO_URI, {
