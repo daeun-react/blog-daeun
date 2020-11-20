@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Input, ModalBody, ModalHeader, NavLink } from "reactstrap";
+import {
+  Alert,
+  Button,
+  Form,
+  Input,
+  Label,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  NavLink,
+} from "reactstrap";
 import { CLEAR_ERROR_REQUEST, REGISTER_REQUEST } from "../../redux/types";
 
 function RegisterModal() {
@@ -23,14 +33,14 @@ function RegisterModal() {
     setModal(!modal);
   };
 
-  const onChange = () => {
+  const onChange = (e) => {
     setValue({
       ...form,
       [e.target.name]: e.target.value,
     });
   };
 
-  const onSubmit = () => {
+  const onSubmit = (e) => {
     e.preventDefault();
     const { name, email, password } = form;
     const newUser = { name, email, password };

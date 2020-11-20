@@ -23,11 +23,13 @@ const loginUserAPI = (loginData) => {
 function* loginUser(action) {
   try {
     const result = yield call(loginUserAPI, action.payload);
+    console.log(("success result", result));
     yield put({
       type: LOGIN_SUCCESS,
       payload: result.data,
     });
   } catch (e) {
+    console.log("fail", e);
     yield put({
       type: LOGIN_FAILURE,
       payload: e.response,

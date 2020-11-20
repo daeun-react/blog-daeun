@@ -88,6 +88,7 @@ function LoginModal() {
               color="dark"
               style={{ marginTop: "2rem" }}
               onSubmit={onSubmit}
+              block
             >
               Login
             </Button>
