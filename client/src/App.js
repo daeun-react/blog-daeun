@@ -5,6 +5,9 @@ import store, { history } from "./store";
 import MyRouter from "./routes/Router";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/custom.scss";
+import loadUser from "./components/auth/loadUser";
+
+loadUser();
 
 function App() {
   return (

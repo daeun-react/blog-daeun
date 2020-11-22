@@ -8,6 +8,12 @@ import {
   LOGOUT_FAILURE,
   LOGOUT_REQUEST,
   LOGOUT_SUCCESS,
+  REGISTER_FAILURE,
+  REGISTER_REQUEST,
+  REGISTER_SUCCESS,
+  USER_LOADING_FAILURE,
+  USER_LOADING_REQUEST,
+  USER_LOADING_SUCCESS,
 } from "../types";
 
 const initialState = {
@@ -24,6 +30,7 @@ const initialState = {
 
 const authReducer = (state = initialState, action) => {
   switch (action.type) {
+    case REGISTER_REQUEST:
     case LOGIN_REQUEST:
     case LOGOUT_REQUEST:
       return {
@@ -31,6 +38,7 @@ const authReducer = (state = initialState, action) => {
         errorMsg: "",
         isLoading: true,
       };
+    case REGISTER_SUCCESS:
     case LOGIN_SUCCESS:
       localStorage.setItem("token", action.payload.token);
       return {
@@ -44,7 +52,6 @@ const authReducer = (state = initialState, action) => {
       };
 
     case LOGOUT_SUCCESS:
-      localStorage.removeItem("token", action.payload.token);
       return {
         token: null,
         user: null,
@@ -55,9 +62,10 @@ const authReducer = (state = initialState, action) => {
         errorMsg: "",
       };
 
+    case REGISTER_FAILURE:
     case LOGIN_FAILURE:
-    case LOGOUT_FAILURE:
       localStorage.removeItem("token");
+
       return {
         ...state,
         ...action.payload,
@@ -67,6 +75,16 @@ const authReducer = (state = initialState, action) => {
         userId: null,
         userRole: null,
         errorMsg: action.payload.data.msg,
+      };
+    case LOGOUT_FAILURE:
+      localStorage.removeItem("token");
+      return {
+        ...state,
+        token: null,
+        isAuth: false,
+        isLoading: false,
+        userId: null,
+        userRole: null,
       };
 
     case CLEAR_ERROR_REQUEST:
@@ -83,6 +101,30 @@ const authReducer = (state = initialState, action) => {
       return {
         ...state,
         errorMsg: "",
+      };
+
+    case USER_LOADING_REQUEST:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case USER_LOADING_SUCCESS:
+      return {
+        ...state,
+        isAuth: true,
+        isLoading: false,
+        user: action.payload,
+        userId: action.payload._id,
+        userName: action.payload.name,
+        userRole: action.payload.role,
+      };
+    case USER_LOADING_FAILURE:
+      return {
+        ...state,
+        user: null,
+        isAuth: false,
+        isLoading: false,
+        userRole: "",
       };
 
     default:
