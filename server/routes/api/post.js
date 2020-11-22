@@ -4,10 +4,10 @@ import Post from "../../models/post";
 
 const router = express.Router();
 
-// api/post
+// /api/post
 router.get("/", async (req, res) => {
   const postFindResult = await Post.find();
-  //console.log(postFindResult, "All Post Get");
+  // console.log(postFindResult, "All Post Get");
   res.json(postFindResult);
 });
 
