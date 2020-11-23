@@ -17,6 +17,8 @@ function PostCardOne({ posts }) {
     <>
       {Array.isArray(posts)
         ? posts.map(({ _id, title, fileUrl, comments, views }) => {
+            console.log(`/post/${_id}`);
+
             return (
               <div key={_id} className="col-md-4">
                 <Link

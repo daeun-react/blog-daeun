@@ -1,8 +1,50 @@
 import express from "express";
 
 import Post from "../../models/post";
+import Category from "../../models/category";
+import User from "../../models/user";
+import auth from "../../middleware/auth";
 
 const router = express.Router();
+
+import multer from "multer";
+import multerS3 from "multer-s3";
+import path from "path";
+import AWS from "aws-sdk";
+import dotenv from "dotenv";
+dotenv.config();
+
+import moment from "moment";
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_KEY,
+  secretAccessKey: process.env.AWS_PRIVATE_KEY,
+});
+
+const uploadS3 = multer({
+  storage: multerS3({
+    s3,
+    bucket: "daeun-project2020/upload",
+    region: "ap-northeast-2",
+    key(req, file, cb) {
+      const ext = path.extname(file.originalname);
+      const basename = path.basename(file.originalname, ext);
+      cb(null, basename + new Date().valueOf() + ext);
+    },
+  }),
+  limits: { fileSize: 100 * 1024 * 1024 },
+});
+
+// /api/post/image
+router.post("/image", uploadS3.array("upload", 5), async (req, res, next) => {
+  try {
+    console.log(req.files.map((v) => v.location));
+    res.json({ uploaded: true, url: req.files.map((v) => v.location) });
+  } catch (e) {
+    console.error(e);
+    res.json({ uploaded: false, url: null });
+  }
+});
 
 // /api/post
 router.get("/", async (req, res) => {
@@ -11,19 +53,69 @@ router.get("/", async (req, res) => {
   res.json(postFindResult);
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", auth, uploadS3.none(), async (req, res, next) => {
   try {
     //console.log(req, "req");
-    const { title, contents, fileUrl, creator } = req.body;
+    const { title, contents, fileUrl, creator, category } = req.body;
     const newPost = await Post.create({
       title,
       contents,
       fileUrl,
       creator,
+      date: moment().format("YYYY-MM-DD hh:mm:ss"),
     });
-    res.json(newPost);
+
+    const findResult = await Category.findOne({ categoryName: category });
+
+    console.log("findResult", findResult);
+
+    if (!findResult) {
+      const newCategory = await Category.create({
+        categoryName: category,
+      });
+
+      await Post.findByIdAndUpdate(newPost._id, {
+        $push: { category: newCategory._id },
+      });
+
+      await Category.findByIdAndUpdate(newCategory._id, {
+        $push: { posts: newPost._id },
+      });
+
+      await User.findByIdAndUpdate(req.user.id, {
+        $push: { posts: newPost._id },
+      });
+    } else {
+      await Category.findByIdAndUpdate(findResult._id, {
+        $push: { posts: newPost._id },
+      });
+      await Post.findByIdAndUpdate(newPost._id, {
+        category: findResult._id,
+      });
+      await User.findByIdAndUpdate(req.user.id, {
+        $push: {
+          posts: newPost._id,
+        },
+      });
+    }
+
+    return res.redirect(`/api/post/${newPost._id}`);
   } catch (e) {
-    console.log(e);
+    console.log("post /", e);
+  }
+});
+
+router.get("/:id", async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params.id)
+      .populate("creator")
+      .populate({ path: "category", select: "categoryName" });
+    post.views += 1;
+    post.save();
+    res.json(post);
+  } catch (e) {
+    console.error("get /:id", e);
+    next(e);
   }
 });
 
