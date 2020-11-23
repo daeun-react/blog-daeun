@@ -105,6 +105,7 @@ router.post("/", auth, uploadS3.none(), async (req, res, next) => {
   }
 });
 
+// detail
 router.get("/:id", async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id)
@@ -116,6 +117,16 @@ router.get("/:id", async (req, res, next) => {
   } catch (e) {
     console.error("get /:id", e);
     next(e);
+  }
+});
+
+// comments route
+router.get("/:id/comments", async (req, res, next) => {
+  try {
+    //const comment =
+  } catch (e) {
+    console.log(e);
+    res.redirect("/");
   }
 });
 
