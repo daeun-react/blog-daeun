@@ -18,6 +18,7 @@ import {
 import BalloonEditor from "@ckeditor/ckeditor5-editor-balloon/src/ballooneditor";
 import { editorConfiguration } from "../../components/editor/EditorConfig";
 import GrowingSpinner from "../../components/spinner/Spinner";
+import Comments from "../../components/comments/Comments";
 
 const PostDetail = (req) => {
   const dispatch = useDispatch();
@@ -25,6 +26,8 @@ const PostDetail = (req) => {
     (state) => state.post
   );
   const { userId, userName } = useSelector((state) => state.auth);
+  const { comments } = useSelector((state) => state.comment);
+
   const postId = req.match.params.id;
 
   useEffect(() => {
@@ -131,7 +134,7 @@ const PostDetail = (req) => {
           </Row>
           <Row>
             <Container className="mb-3 border border-blue rounded">
-              {/* {Array.isArray(comments)
+              {Array.isArray(comments)
                 ? comments.map(
                     ({ contents, creator, date, _id, creatorName }) => (
                       <div key={_id}>
@@ -140,13 +143,7 @@ const PostDetail = (req) => {
                             {creatorName ? creatorName : creator}
                           </div>
                           <div className="text-small">
-                            <span className="font-weight-bold">
-                              {date.split(" ")[0]}
-                            </span>
-                            <span className="font-weight-light">
-                              {" "}
-                              {date.split(" ")[1]}
-                            </span>
+                            <span className="font-weight-bold">{date}</span>
                           </div>
                         </Row>
                         <Row className="p-2">
@@ -161,7 +158,7 @@ const PostDetail = (req) => {
                 id={req.match.params.id}
                 userId={userId}
                 userName={userName}
-              /> */}
+              />
             </Container>
           </Row>
         </Fragment>

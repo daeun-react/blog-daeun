@@ -18,6 +18,9 @@ import {
   POST_DETAIL_LOADING_SUCCESS,
   POST_DETAIL_LOADING_FAILURE,
   POST_DETAIL_LOADING_REQUEST,
+  POST_DELETE_SUCCESS,
+  POST_DELETE_FAILURE,
+  POST_DELETE_REQUEST,
 } from "../types";
 
 //load post
@@ -112,10 +115,47 @@ function* watchloadPostDetailPost() {
   yield takeEvery(POST_DETAIL_LOADING_REQUEST, loadPostDetailPost);
 }
 
+// Post Delete
+const DeletePostAPI = (payload) => {
+  const config = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+  const token = payload.token;
+
+  if (token) {
+    config.headers["x-auth-token"] = token;
+  }
+
+  return axios.delete(`/api/post/${payload.id}`, config);
+};
+
+function* DeletePost(action) {
+  try {
+    const result = yield call(DeletePostAPI, action.payload);
+    yield put({
+      type: POST_DELETE_SUCCESS,
+      payload: result.data,
+    });
+    yield put(push("/"));
+  } catch (e) {
+    yield put({
+      type: POST_DELETE_FAILURE,
+      payload: e,
+    });
+  }
+}
+
+function* watchDeletePost() {
+  yield takeEvery(POST_DELETE_REQUEST, DeletePost);
+}
+
 export default function* postSaga() {
   yield all([
     fork(watchLoadPosts),
     fork(watchUploadPost),
     fork(watchloadPostDetailPost),
+    fork(watchDeletePost),
   ]);
 }
